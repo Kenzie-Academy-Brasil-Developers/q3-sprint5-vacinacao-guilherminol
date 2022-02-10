@@ -10,5 +10,6 @@ def init_app(app:Flask):
 
     db.init_app(app)
     app.db = db
+    db.create_all(app=app)
 
     from app.models.vaccine_model import VaccineRecord 
