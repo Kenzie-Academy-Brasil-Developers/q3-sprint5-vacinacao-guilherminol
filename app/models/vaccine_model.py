@@ -24,12 +24,16 @@ class VaccineRecord(db.Model):
 
     @classmethod
     def checkdata(cls,data): 
-        return all(isinstance(x, str) for x in data)
+        valid_keys = ['cpf', 'name', 'health_unit_name','vaccine_name']
+        return all(key in data.keys() for key in valid_keys)
 
     @classmethod
     def normalize(cls,data):
-
         for key,value in data.items():
             data[key] = value.capitalize()
 
         return data
+        
+    @classmethod
+    def check_cpf(cls,cpf): 
+        return len(cpf) == 11

@@ -21,12 +21,25 @@ def get_all_logs():
 
 def add_log():
     
-    data = request.get_json()
+    data = request.get_json() 
 
     if not VaccineRecord.checkdata(data):
-        return {"error": "there are values that are not strings"},HTTPStatus.BAD_REQUEST
+        return {"error":"keys must be cpf, name, health_unit_name and vaccine_name"},HTTPStatus.BAD_REQUEST
 
-    data = VaccineRecord.normalize(data)
+    try:
+        data = VaccineRecord.normalize(data)
+
+    except AttributeError:
+        return {'error':'all data must be a string'},HTTPStatus.BAD_REQUEST
+
+
+    data = {
+        'cpf': data["cpf"],
+        'name': data["name"],
+        'health_unit_name': data["health_unit_name"],
+        'vaccine_name': data["vaccine_name"],
+    }
+
     data["first_shot_date"] = datetime.datetime.now()
     data["second_shot_date"] = (datetime.datetime.now() + datetime.timedelta(days = 90))
 
@@ -35,6 +48,10 @@ def add_log():
 
     except TypeError:
         return {"error": "Invalid keys"},HTTPStatus.BAD_REQUEST
+
+
+    if not VaccineRecord.check_cpf(data['cpf']):
+        return {'error': 'Invalid CPF'},HTTPStatus.BAD_REQUEST 
 
     try:
         db.session.add(log)
